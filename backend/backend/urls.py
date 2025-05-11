@@ -15,8 +15,22 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+
+schema_view = get_schema_view(
+   openapi.Info(
+      title="Shrimp Pond Water Quality Classification API",
+      default_version='v1',
+      description="This API allows classification of shrimp pond water conditions using sensor data and retrieves the latest prediction results. "
+                  "It is part of a smart aquaculture system using ML to detect conditions like low pH, high salinity, and contamination.",
+   ),
+   public=True,
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/', include('ml_api.urls')),
+    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
 ]
