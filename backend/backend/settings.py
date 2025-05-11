@@ -43,6 +43,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -75,10 +76,21 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'ml_db',              # matches POSTGRES_DB
+        'USER': 'admin',              # matches POSTGRES_USER
+        'PASSWORD': 'password',       # matches POSTGRES_PASSWORD
+        'HOST': 'localhost',          # if Django runs outside Docker
+        'PORT': '5435',               # must match host-side port in Docker Compose
     }
 }
 
@@ -101,13 +113,40 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+CORS_ALLOW_ALL_ORIGINS = True
+
+# CORS_ALLOWED_ORIGINS = [
+#     "https://example.com",
+#     "https://sub.example.com",
+#     "http://localhost:3000",
+#     "http://127.0.0.1:3000",
+# ]
+
+# ถ้าต้องการกำหนด HTTP Methods ที่อนุญาต เช่น GET, POST, PUT, PATCH, DELETE
+CORS_ALLOW_METHODS = [
+    "GET",
+    "POST",
+    "PUT",
+    "PATCH",
+    "DELETE",
+    "OPTIONS",
+]
+
+# ถ้าต้องการกำหนด Headers ที่อนุญาต เช่น Authorization, Content-Type
+CORS_ALLOW_HEADERS = [
+    "content-type",
+    "authorization",
+    "x-csrftoken",
+    "x-requested-with",
+]
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Bangkok'
 
 USE_I18N = True
 
