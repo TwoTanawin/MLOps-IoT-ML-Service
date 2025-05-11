@@ -1,0 +1,18 @@
+services:
+  mlops_ml_svc:
+    image: postgres:16
+    container_name: ml_db
+    platform: linux/amd64
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=ml_db
+    ports:
+      - "5435:5432"
+    restart: always
+    networks:
+      - mlops_network
+
+networks:
+  mlops_network:
+    driver: bridge
