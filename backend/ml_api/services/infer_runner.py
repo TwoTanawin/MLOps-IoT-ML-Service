@@ -3,27 +3,14 @@ import joblib
 import numpy as np
 import os
 
+_model_cache = None
+
 class MLrunner:
     
     def __init__(self, model_path: str = None):
         self.logger = self._setup_logger()
-        self.model_path = model_path or self._load_base_model()  # Use default if none provided
-        self.model = self._load_model()
-        
-    def _load_base_model(self):
-        
-        current_file = os.path.abspath(__file__)
-        # Get the directory containing the current file (services)
-        services_dir = os.path.dirname(current_file)
-        # Go up to ml_api directory
-        ml_api_dir = os.path.dirname(services_dir)
-        # Go up to backend directory
-        backend_dir = os.path.dirname(ml_api_dir)
-        # Create path to the correct model location
-        model_path = os.path.join(backend_dir, "ml", "models", "gb_model.joblib")
-        
-        self.logger.info(f"Looking for model at: {model_path}")
-        return model_path
+        self.model_path = model_path or self._get_default_model_path()
+        self.model = self._get_cached_model()
 
     def _setup_logger(self):
         logger = logging.getLogger(self.__class__.__name__)
@@ -34,15 +21,28 @@ class MLrunner:
             )
         return logger
 
-    def _load_model(self):
-        self.logger.info(f"Loading model from: {self.model_path}")
-        try:
-            model = joblib.load(self.model_path)
-            self.logger.info("Model loaded successfully.")
-            return model
-        except Exception as e:
-            self.logger.error(f"Failed to load model: {e}")
-            raise
+    def _get_default_model_path(self):
+        current_file = os.path.abspath(__file__)
+        services_dir = os.path.dirname(current_file)
+        ml_api_dir = os.path.dirname(services_dir)
+        backend_dir = os.path.dirname(ml_api_dir)
+        model_path = os.path.join(backend_dir, "ml", "models", "gb_model.joblib")
+        self.logger.info(f"Default model path resolved: {model_path}")
+        return model_path
+
+    def _get_cached_model(self):
+        global _model_cache
+        if _model_cache is None:
+            self.logger.info(f"Loading model from disk: {self.model_path}")
+            try:
+                _model_cache = joblib.load(self.model_path)
+                self.logger.info("Model loaded and cached successfully.")
+            except Exception as e:
+                self.logger.error(f"Failed to load model: {e}")
+                raise
+        else:
+            self.logger.info("Using cached model.")
+        return _model_cache
 
     def predict(self, sample: list):
         class_names = ['Clean', 'Low pH', 'High pH', 'Chemical', 'Salt', 'Organic']
@@ -66,8 +66,7 @@ class MLrunner:
             "confidence": round(confidence * 100, 2)
         }
 
-# Usage example:
+# Usage
 if __name__ == "__main__":
     runner = MLrunner()
-    result = runner.predict([0, 0, 0, 0])
-    print(result)
+    print(runner.predict([8.0, 7.5, 30.0, 400.0]))
