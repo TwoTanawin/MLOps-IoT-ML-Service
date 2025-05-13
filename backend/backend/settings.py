@@ -90,7 +90,7 @@ DATABASES = {
         'NAME': 'ml_db',              # matches POSTGRES_DB
         'USER': 'admin',              # matches POSTGRES_USER
         'PASSWORD': 'password',       # matches POSTGRES_PASSWORD
-        'HOST': 'localhost',          # if Django runs outside Docker
+        'HOST': '18.140.67.71',          # if Django runs outside Docker
         'PORT': '5435',               # must match host-side port in Docker Compose
     }
 }
@@ -114,14 +114,14 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True
+# CORS_ALLOW_ALL_ORIGINS = True
 
-# CORS_ALLOWED_ORIGINS = [
-#     "https://example.com",
-#     "https://sub.example.com",
-#     "http://localhost:3000",
-#     "http://127.0.0.1:3000",
-# ]
+CORS_ALLOWED_ORIGINS = [
+    "https://example.com",
+    "https://sub.example.com",
+    "http://localhost:4200",
+    "http://127.0.0.1:4200",
+]
 
 # ถ้าต้องการกำหนด HTTP Methods ที่อนุญาต เช่น GET, POST, PUT, PATCH, DELETE
 CORS_ALLOW_METHODS = [

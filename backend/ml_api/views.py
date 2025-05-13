@@ -87,27 +87,34 @@ class ClassifySensorData(APIView):
 class GetLatestResult(APIView):
 
     @swagger_auto_schema(
-        operation_description="Get latest classification result per serial number",
-        responses={200: latest_results_response_schema, 500: "Server error"}
+        operation_description="Get the latest classification result for a specific serial number.",
+        manual_parameters=[
+            openapi.Parameter(
+                'serialNumber', openapi.IN_QUERY,
+                description="Device Serial Number",
+                type=openapi.TYPE_STRING,
+                required=True
+            )
+        ],
+        responses={200: latest_results_response_schema, 400: "Missing serialNumber", 500: "Server error"}
     )
     def get(self, request):
+        serial_number = request.query_params.get('serialNumber')
+
+        if not serial_number:
+            return Response({"error": "serialNumber query parameter is required"}, status=status.HTTP_400_BAD_REQUEST)
+
         try:
-            latest_entries = MLResult.objects.filter(
-                serialNumber=OuterRef('serialNumber')
-            ).order_by('-created_at')
+            latest_result = MLResult.objects.filter(serialNumber=serial_number).order_by('-created_at').first()
 
-            results = MLResult.objects.filter(
-                id__in=Subquery(latest_entries.values('id')[:1])
-            ).order_by('-created_at')
+            if not latest_result:
+                return Response({"error": f"No data found for serial number: {serial_number}"}, status=status.HTTP_404_NOT_FOUND)
 
-            data = [
-                {
-                    "serialNumber": r.serialNumber,
-                    "result": r.result,
-                    "created_at": r.created_at
-                }
-                for r in results
-            ]
+            data = {
+                "serialNumber": latest_result.serialNumber,
+                "result": latest_result.result,
+                "created_at": latest_result.created_at
+            }
 
             return Response(data, status=status.HTTP_200_OK)
 
