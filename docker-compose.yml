@@ -7,10 +7,10 @@ services:
       dockerfile: Dockerfile
     container_name: mlops_django
     ports:
-      - "8000:8000"
+      - "80:80"
     volumes:
       - .:/app
     environment:
       - DEBUG=True
       - DJANGO_SETTINGS_MODULE=backend.settings  # Adjust if using a custom settings file
-    command: ["python", "backend/manage.py", "runserver", "0.0.0.0:8000"]
+    command: ["python", "backend/manage.py", "runserver", "0.0.0.0:80"]
